@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">IITM Flitehts</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="speaker_array">
+        <item>iitm_hindifemale</item>
+        <item>iitm_hindimale</item>
+        <item>iitm_hindi</item>
+    </string-array>
+</resources>

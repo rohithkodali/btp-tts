@@ -1,0 +1,43 @@
+%{
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "hindi.tab.h"
+%}
+
+%%
+
+(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|व|श|ष|स|ळ|ह|क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़)(अ|आ|इ|ई|उ|ऊ|ऋ|ए|ऐ|ओ|औ|ऑ|अँ|अं|अः|आँ|आं|आः|इँ|ईं|ईः|इं|इः|ईँ|उँ|उं|उः|ऊँ|ऊं|ऊः|ऋँ|ऋं|ऋः|एँ|एं|एः|ऐँ|ऐं|ऐः|ओँ|ओं|ओः|औँ|औं|औः) {yylval.strval = strdup(yytext); /*printf("Hello1\n");*/ return fullvowel;}
+
+(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|ळ|व|श|ष|स|ह|क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़)(ा|ि|ी|ु|ू|ृ|ॄ|ॅ|ॆ|े|ै|ॉ|ॊ|ो|ौ|ं|ः|ँ)(ँ|ं|ः)* {yylval.strval = strdup(yytext);/*printf("Hello2\n");*/ return kaki;}
+
+(ड़ा|ड़ि|ड़ी|ड़ु|ड़ू|ड़ृ|ड़ॄ|ड़े|ड़ै|ड़ो|ड़ौ|ड़ँ|ड़ं|ड़ः) {yylval.strval = strdup(yytext);/*printf("Hello2.1\n");*/ return kaki;}
+
+(क्|ख्|ग्|घ्|च्|छ्|ज्|झ्|ङ्|ञ्|ट्|ठ्|ड्|ढ्|ण्|त्|थ्|द्|ध्|न्|प्|फ्|ब्|भ्|म्|य्|र्|ल्|ळ्|व्|श्|ष्|स्|ह्) {yylval.strval = strdup(yytext); /*printf("Hello3\n");*/ return conjsyll2;}
+
+(क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़)्  {yylval.strval = strdup(yytext); /*printf("Hello3\n");*/return conjsyll2;}
+
+्(य|र|ऱ|ल|ळ|ऴ|व्) {yylval.strval = strdup(yytext); /*printf("Hello3\n");*/ return conjsyll2;}
+
+(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|ळ|व|श|ष|स|ह|क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़)(आ|इ|ई|उ|ऊ|ऋ|ए|ऐ|ओ|औ|ऑ)(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|व|श|ष|स|ह|क़|ख़|ग़|ज़|ड़|ढ़|फ़|आ|इ|ई|उ|ऊ|ऋ|ए|ऐ|ओ|औ|ा|ि|ी|ु|ू|ृ|ॄ|ॅ|ॆ|े|ै|ॉ|ॊ|ो|ौ|ँ|ं|ः)्(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|व|श|ष|स|ह|क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़) {yylval.strval = strdup(yytext); /*printf("Hello4\n");*/return conjsyll1;}
+
+(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|ळ|व|श|ष|स|ह)(ऀ|ँ|ं|ः|ऄ|़) {yylval.strval = strdup(yytext);/*printf("Hello5\n");*/ return nukchan;}
+
+(क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़)(ऀ|ँ|ं|ः|ऄ) {yylval.strval = strdup(yytext);/*printf("Hello5\n");*/ return nukchan;}
+
+(ि|ी|ु|ू|ृ|ॄ)(य|य़) {yylval.strval = strdup(yytext); /*printf("Hello6\n");*/return yarule;}
+
+(क|ख|ग|घ|च|छ|ज|झ|ङ|ञ|ट|ठ|ड|ढ|ण|त|थ|द|ध|न|प|फ|ब|भ|म|य|र|ल|ळ|व|श|ष|स|ह) {yylval.strval = strdup(yytext); /*printf("Hello7\n");*/return consonant;}
+
+(क़|ख़|ग़|ज़|ड़|ढ़|फ़|य़) {yylval.strval = strdup(yytext); /*printf("Hello7\n");*/return consonant;}
+
+(अ|आ|इ|ई|उ|ऊ|ऋ|ए|ऐ|ओ|औ|ऑ|अँ|अं|अः|आँ|आं|आः|इँ|ईं|ईः|इं|इः|ईँ|उँ|उं|उः|ऊँ|ऊं|ऊः|ऋँ|ऋं|ऋः|एँ|एं|एः|ऐँ|ऐं|ऐः|ओँ|ओं|ओः|औँ|औं|औः) {yylval.strval = strdup(yytext);/*printf("Hello8\n");*/ return vowel;}
+
+् {yylval.strval = strdup(yytext); /*printf("Hello6\n");*/return halant;}
+
+(ि|ी|ु|ू|ृ|ॄ) {yylval.strval = strdup(yytext); /*printf("Hello6\n");*/return matra;}
+
+[ \n\t\r]+ {yylval.strval = strdup( yytext);return space;}
+%%
+
+
