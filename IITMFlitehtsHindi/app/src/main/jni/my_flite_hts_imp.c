@@ -16139,6 +16139,27 @@ int token_hin(short int *with_halant, short int *tokenized_array, int count)
 
 }
 
+int token_tel(short int *with_halant, short int *tokenized_array, int count)
+{
+       int k = 0;
+	int j=0;
+       for ( j = 0; j < count; j++ )
+	   {
+               if ( ( 3073 < with_halant[j] ) && ( with_halant[j] < 3150 ) )
+			   { //if its in telugu range
+
+                           tokenized_array[k] = with_halant[j];
+                           k++;
+
+                       /*tokenized_array[k] = with_halant[j];
+                       k++;*/
+               }
+       }
+       return k;
+
+}
+
+
 
 static int dehalant(short int unicode_string[], int num_unicode)
 {
@@ -16317,6 +16338,85 @@ static int syllabify(short int *with_halant, int num_unicode)
 	}
 	num_unicode=k;
 
+	return num_unicode;
+}
+// utilities
+int power(int a,int b){
+    //returns a power b
+    int i;
+    int ans=1;
+    for (i = 0; i < b; i += 1)
+    {
+        ans = ans*a;
+    }
+    return ans;
+}
+int hex2dec( char in[]){
+    char* out = (char*)malloc(strlen(in)*2);
+    int ans=0,flag=1,i;
+    int len = strlen(in);
+    for (i = 0; i < len; i ++)
+    {
+        char c = in[i];
+        if(c>='0' && c<= '9'){
+            ans+= (c-'0')*power(16,len-i-1);
+        }else{
+            ans+= (10+c-'A')*power(16,len-i-1);
+        }
+    }
+
+    return ans;
+}
+// end of utilities
+
+static int syllabify_tel(short int *telugu_word, int num_unicode){
+	int k=-1;
+	int i=0;
+    for(i=0;i<num_unicode;i++){
+        short int curr_val = telugu_word[i];
+        // vowel check
+        if(curr_val > hex2dec("C04") && curr_val < hex2dec("C15")){
+
+            syllabified_word[++k] = telugu_word[i];
+            syllabified_word[++k] = 0;
+        }
+        // consonant check
+        else if(curr_val > hex2dec("C14") && curr_val < hex2dec("C3A")){
+            // virama check
+            if(telugu_word[i+1]== hex2dec("C4D")){
+                syllabified_word[k] = telugu_word[i];
+            }
+            else if( (telugu_word[i+1]>=hex2dec("C3E")) && (telugu_word[i+1]<hex2dec("C4E")) ){
+                syllabified_word[++k] = telugu_word[i];
+
+            }
+            else{
+                syllabified_word[++k] = telugu_word[i];
+                syllabified_word[++k] = 0;
+            }
+        }
+        else if(curr_val >= hex2dec("C3E") && curr_val < hex2dec("C55")){
+
+            if(i==1&& curr_val == hex2dec("C4D") || telugu_word[i+1]== hex2dec("C4D") ){
+                syllabified_word[++k] = telugu_word[i];
+            }
+            else {
+                if(!(telugu_word[i-1]> hex2dec("C14") || telugu_word[i-1] < hex2dec("C3A"))){
+                    syllabified_word[k] = telugu_word[i];
+                }
+                else{
+                    syllabified_word[++k] = telugu_word[i];
+                    syllabified_word[++k] = 0;
+                }
+            }
+
+        }
+        else if(curr_val > hex2dec("C00") || curr_val < hex2dec("C04")){
+                syllabified_word[k] = telugu_word[i];
+                syllabified_word[++k] = 0;
+        }
+    }
+	num_unicode=k;
 	return num_unicode;
 }
 
@@ -16568,7 +16668,7 @@ static const char filename[] = "/sdcard/Android/data/com.mslabiitm.iitmflitehtsh
 		res++;
 	} 
 
-char *temp_new=trimwhitespace(temp);
+    char *temp_new=trimwhitespace(temp);
 	install(pch,temp_new);
 	str_cpy[128]='\0';
 	temp[128] = '\0';
@@ -16743,6 +16843,51 @@ static int phonify_hin(int syll_length, short int to_phonify[100], int jh) {
 		
 	return jh;
 }
+// phonify for tel
+   static int phonify_tel(int syll_length, short int to_phonify[100], int jh){
+    int i ;
+    short int curr,next;
+    for(i=0; i<syll_length; i++){
+         curr = to_phonify[i];
+         next = to_phonify[i+1];
+         char temp[100];
+        sprintf(temp, "%d", curr);
+        char *tttt=get(temp); // refer hash table
+		 /*
+		 printf("%s\n",tttt);
+		 printf("curr=%d, next=%d jh=%d \n",curr,next,jh);
+         */
+         // current is virama/mei ignored
+         if(curr == 3149){
+
+         }
+         else {
+            //if current is consonant
+            if(curr>= 3093 && curr<= 3129 ){
+                //add exception later
+                //next is either matra or mei just output as it is
+                if((next==3149) || (next >=3124  && next <= 3148) ){
+                    strcpy(syllphone_finarray[jh],tttt);
+				    jh++;
+                }else {
+                // next must be vowel or consonant
+                    strcpy(syllphone_finarray[jh],tttt);
+				    jh++;
+				    strcpy(syllphone_finarray[jh],"a");
+				    jh++;
+                }
+
+            }else{
+            // current is vowel or matra output as it is
+                strcpy(syllphone_finarray[jh],tttt);
+			    jh++;
+            }
+         }
+
+    }
+    return jh;
+}
+
 
 int No_phonelist(int count_phones, char *tag) {
 	   	int i;
@@ -16786,7 +16931,8 @@ static void get_token_sub_part_2(cst_tokenstream *ts,
 
 	return;
 	}
-
+    static const char filename[] = "/sdcard/Android/data/com.mslabiitm.iitmflitehtshindi/temp.txt";
+    FILE* fp = fopen(filename,"w");
     createhash();
     int tokenInc=0;
     int no_of_phones=0;
@@ -16859,7 +17005,7 @@ if((index==1)&&(ts->current_char >32)&&(ts->current_char <123)){
 	}
 	//(*buffer)[p] = ts->current_char;
 	//(*buffer)[p] = 'i';
-	printf("\nCurrent char :%d:",(ts->current_char+256));
+	fprintf(fp,"\nCurrent char :%d:",(ts->current_char+256));
 	/* If someone sets tags we end the token */
 	/* This can't happen in standard tokenstreams, but can in user */
 	/* defined ones */
@@ -16880,10 +17026,10 @@ if((index==1)&&(ts->current_char >32)&&(ts->current_char <123)){
 
 	}
 		 num_unicode=p2;
- num_unicode=token_hin(unicode_string, tokenized_array, num_unicode);
-    num_unicode=dehalant(tokenized_array,num_unicode);
+ num_unicode=token_tel(unicode_string, tokenized_array, num_unicode);
+    //num_unicode=dehalant(tokenized_array,num_unicode);
 
-    num_unicode=syllabify(with_halant,num_unicode);
+    num_unicode=syllabify_tel(tokenized_array,num_unicode);
 
     for(i=0;i<10;i++)
 	syll_length[i]=0;
@@ -16912,7 +17058,7 @@ if((index==1)&&(ts->current_char >32)&&(ts->current_char <123)){
 				//unicode2utf82(syllables[m],syll_list[m],syll_length[m],m,no_of_sylls);
 				i=0;		
 				
-				count_phones=phonify_hin(syll_length[m], syllables[m], jh);
+				count_phones=phonify_tel(syll_length[m], syllables[m], jh);
 				
 				jh=count_phones;
 				//}
